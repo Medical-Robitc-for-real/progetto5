@@ -65,8 +65,37 @@ class KeyBoardController(Sofa.Core.Controller):
             #self.action = 'n'
             self.rotate(self.tube, 0.4)
         elif key == "W":
-            print("Generazione workspace")
-            self.generate_workspace("work_space_1.txt")
+            print("Generazione workspace nominale")
+            self.set_nominal_parameters()
+            self.generate_workspace("work_space_nominal.txt")
+    
+        elif key == "Q":
+            print("Generazione workspace con straight length , curved length e radius curvature -20% tube3")
+            self.set_minus20_parameters()
+            self.generate_workspace("workspace_minus20.txt")
+
+        elif key == "R":
+            print("Generazione workspace con straight length , curved length e radius curvature +20% tube3")
+            self.set_plus20_parameters()
+            self.generate_workspace("workspace_plus20.txt")
+            
+    def set_nominal_parameters(self):
+     self.rootNode.TUBE_3.StraightSection.length = Straight_length_3
+     self.rootNode.TUBE_3.SpireSection.length = Curved_length_3
+     self.rootNode.TUBE_3.SpireSection.spireDiameter = 2 * Radius_curvature_3
+
+
+    def set_minus20_parameters(self):
+      factor = 0.8
+      self.rootNode.TUBE_3.StraightSection.length = Straight_length_3 * factor
+      self.rootNode.TUBE_3.SpireSection.length = Curved_length_3 * factor
+      self.rootNode.TUBE_3.SpireSection.spireDiameter = 2 * Radius_curvature_3 * factor
+
+    def set_plus20_parameters(self):
+      factor = 1.2
+      self.rootNode.TUBE_3.StraightSection.length = Straight_length_3 * factor
+      self.rootNode.TUBE_3.SpireSection.length = Curved_length_3 * factor
+      self.rootNode.TUBE_3.SpireSection.spireDiameter = 2 * Radius_curvature_3 * factor
 
 
     #IMPLEMENTAZIONE CONTROLLO VERO E PROPRIO
@@ -77,13 +106,17 @@ class KeyBoardController(Sofa.Core.Controller):
         with self.ir_controller.rotationInstrument.writeable() as d: d[tube-1] = d[tube-1]+ quantity
 
     def generate_workspace(self, filename):
+        
+        straight3 = self.rootNode.TUBE_3.StraightSection.length.value
+        curved3   = self.rootNode.TUBE_3.SpireSection.length.value
+
         workspace_points = []
 
         insertion_range_1 = range(0, Straight_length_1 + Curved_length_1 + 3, 40)
         rotation_range_1  = range(-90, 91, 45)
         insertion_range_2 = range(0, Straight_length_2 + Curved_length_2 + 3, 40)
         rotation_range_2  = range(-90, 91, 45)
-        insertion_range_3 = range(0, Straight_length_3 + Curved_length_3 + 3, 40)
+        insertion_range_3 = range(0, int(straight3 + curved3 + 3), 40)
         rotation_range_3  = range(-90, 91, 45)
 
         i=1
